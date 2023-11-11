@@ -1,3 +1,4 @@
 from django.contrib import admin
+from urlshortener.models import LinkPair
 
-# Register your models here.
+admin.site.register(LinkPair)
