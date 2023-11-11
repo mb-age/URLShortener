@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+
+class LinkPair(models.Model):
+    long_link = models.URLField()
+    short_link = models.CharField(max_length=6)
+    created_dt = models.DateTimeField(auto_now_add=True)
+    is_custom = models.BooleanField(default=False)
