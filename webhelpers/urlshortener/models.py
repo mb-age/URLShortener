@@ -6,3 +6,6 @@ class LinkPair(models.Model):
     short_link = models.CharField(max_length=6, null=True, unique=True)
     created_dt = models.DateTimeField(auto_now_add=True)
     is_custom = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-pk']
