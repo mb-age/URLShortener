@@ -5,7 +5,7 @@ from urlshortener.models import LinkPair
 class LinkPairSerializer(serializers.ModelSerializer):
     class Meta:
         model = LinkPair
-        fields = '__all__'
+        fields = ['url', 'alias', 'created_dt', 'is_custom', 'is_active', 'request_count']
         extra_kwargs = {'alias': {'validators': []}}
 
     def validate_alias(self, data):
