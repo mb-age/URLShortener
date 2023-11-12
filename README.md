@@ -67,6 +67,8 @@ A simple URL shortener service implemented in [Python](https://www.python.org/) 
 
 4. Use the generated alias (http://127.0.0.1:8000/api/url/<alias>) to redirect to the original long URL.
 
+5. Check the alias click count (http://127.0.0.1:8000/api/url/<alias>/request-count)
+
 ## Configuration
 
 - Customize shortcode length in the `settings.py` file.
