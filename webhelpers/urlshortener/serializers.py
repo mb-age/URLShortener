@@ -6,6 +6,7 @@ class LinkPairSerializer(serializers.ModelSerializer):
     class Meta:
         model = LinkPair
         fields = '__all__'
+        extra_kwargs = {'alias': {'validators': []}}
 
     def validate_alias(self, data):
         if LinkPair.objects.filter(alias=data).exists():
