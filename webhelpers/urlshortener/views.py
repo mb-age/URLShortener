@@ -19,17 +19,20 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.List
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        _mutable: bool = request.data._mutable
+        setattr(request.data, '_mutable', True)
+
         if request.data.get('alias'):
             request.data['is_custom'] = True
         else:
             alias = alias_generator()
             request.data['alias'] = alias
 
-        serializer = self.get_serializer(data=request.data)
+        setattr(request.data, '_mutable', _mutable)
+        serializer = LinkPairSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
