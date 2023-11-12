@@ -19,6 +19,7 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin):
         if request.data.get('alias'):
             request.data['is_custom'] = True
         else:
+            request.data['is_custom'] = False
             alias = alias_generator()
             request.data['alias'] = alias
 
@@ -34,7 +35,23 @@ def link_redirect(request, alias):
     try:
         link_pair = LinkPair.objects.get(alias=alias)
     except ObjectDoesNotExist:
-        return Response({'message': 'This link does not exist'}, status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'This link does not exist.'}, status.HTTP_204_NO_CONTENT)
 
+    if not link_pair.is_active:
+        return Response({'message': 'This link is expired.'}, status.HTTP_204_NO_CONTENT)
+
+    link_pair.request_count += 1
+    link_pair.save()
     target_url = link_pair.url
     return redirect(target_url)
+
+
+@api_view(['GET'])
+def request_count(request, alias):
+    try:
+        link_pair = LinkPair.objects.get(alias=alias)
+    except ObjectDoesNotExist:
+        return Response({'message': 'This link does not exist.'}, status.HTTP_204_NO_CONTENT)
+
+    request_count = link_pair.request_count
+    return Response({'request_count': request_count}, status.HTTP_200_OK)
