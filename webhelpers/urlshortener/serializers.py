@@ -3,6 +3,10 @@ from urlshortener.models import LinkPair
 
 
 class LinkPairSerializer(serializers.ModelSerializer):
+    is_custom = serializers.BooleanField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+    request_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = LinkPair
         fields = ['url', 'alias', 'created_dt', 'is_custom', 'is_active', 'request_count']
