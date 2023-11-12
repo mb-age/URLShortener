@@ -11,9 +11,12 @@ from urlshortener.serializers import LinkPairSerializer
 from urlshortener.helpers import alias_generator
 
 
-class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin):
-    queryset = LinkPair
+class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.ListModelMixin):
+    queryset = LinkPair.objects
     serializer_class = LinkPairSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.data.get('alias'):
