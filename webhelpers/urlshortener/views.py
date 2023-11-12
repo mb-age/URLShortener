@@ -22,7 +22,6 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.List
         if request.data.get('alias'):
             request.data['is_custom'] = True
         else:
-            request.data['is_custom'] = False
             alias = alias_generator()
             request.data['alias'] = alias
 
