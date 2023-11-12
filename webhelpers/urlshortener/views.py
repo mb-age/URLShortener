@@ -35,6 +35,6 @@ def link_redirect(request, alias):
         link_pair = LinkPair.objects.get(alias=alias)
     except ObjectDoesNotExist:
         return Response({'message': 'This link does not exist'}, status.HTTP_204_NO_CONTENT)
-    target_url = link_pair.url
 
+    target_url = link_pair.url
     return redirect(target_url)
