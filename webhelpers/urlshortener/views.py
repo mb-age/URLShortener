@@ -52,7 +52,7 @@ def link_redirect(request, alias):
 
 
 @api_view(['GET'])
-def request_count(request, alias):
+def get_request_count(request, alias):
     try:
         link_pair = LinkPair.objects.get(alias=alias)
     except ObjectDoesNotExist:
@@ -60,3 +60,4 @@ def request_count(request, alias):
 
     request_count = link_pair.request_count
     return Response({'request_count': request_count}, status.HTTP_200_OK)
+
