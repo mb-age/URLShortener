@@ -1,4 +1,5 @@
 from rest_framework import serializers, exceptions
+
 from urlshortener.models import LinkPair
 
 
