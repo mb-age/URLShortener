@@ -1,4 +1,5 @@
 from django.urls import path
+
 from urlshortener.views import LinkPairView, link_redirect, get_request_count
 
 urlpatterns = [

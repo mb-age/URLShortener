@@ -5,10 +5,11 @@ from django.shortcuts import redirect
 from rest_framework import status, generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 # project
+from urlshortener.helpers import alias_generator
 from urlshortener.models import LinkPair
 from urlshortener.serializers import LinkPairSerializer
-from urlshortener.helpers import alias_generator
 
 
 class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.ListModelMixin):
