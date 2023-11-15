@@ -126,3 +126,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ALIAS_LENGTH = 8
+
+STORAGE_TIME = 7  # days
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'

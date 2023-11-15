@@ -27,6 +27,7 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.List
         if request.data.get('alias'):
             request.data['is_custom'] = True
         else:
+            request.data['is_custom'] = False
             alias = alias_generator()
             request.data['alias'] = alias
 
@@ -68,21 +69,6 @@ def get_request_count(request, alias):
 
     request_count = link_pair.request_count
     return Response({'request_count': request_count}, status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def put_password(request):
-    password = request.data.get('password')
-    alias = request.data.get('alias')
-    link_pair = LinkPair.objects.get(alias=alias)
-
-    if password != link_pair.password:
-        return Response({'message': "The password is wrong"})
-
-    link_pair.request_count += 1
-    link_pair.save()
-    target_url = link_pair.url
-    return redirect(target_url)
 
 
 @api_view(['POST', 'GET'])
