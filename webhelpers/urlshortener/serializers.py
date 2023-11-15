@@ -10,7 +10,7 @@ class LinkPairSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LinkPair
-        fields = ['url', 'alias', 'created_dt', 'is_custom', 'is_active', 'request_count']
+        fields = ['url', 'alias', 'created_dt', 'is_custom', 'is_active', 'request_count', 'is_secured', 'password']
         extra_kwargs = {'alias': {'validators': []}}
 
     def validate_alias(self, data):
@@ -19,3 +19,8 @@ class LinkPairSerializer(serializers.ModelSerializer):
         if len(data) < 5:
             raise exceptions.ValidationError({'alias': 'The Alias must be at least 5 characters.'})
         return data
+
+    def validate(self, attrs):
+        if attrs.get('is_secured') and not attrs.get('password'):
+            raise exceptions.ValidationError({'password': 'Protected alias requires a password.'})
+        return super().validate(attrs)
