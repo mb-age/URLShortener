@@ -1,5 +1,6 @@
 # django
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from django.shortcuts import redirect
 from django.urls import reverse
 # rest_framework
@@ -9,8 +10,8 @@ from rest_framework.response import Response
 
 # project
 from urlshortener.helpers import alias_generator
-from urlshortener.models import LinkPair
-from urlshortener.serializers import LinkPairSerializer
+from urlshortener.models import LinkPair, Referer
+from urlshortener.serializers import LinkPairSerializer, RefererSerializer
 
 
 class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.ListModelMixin):
@@ -77,32 +78,24 @@ def link_redirect(request, alias):
             redirect_url = reverse('password-form', args=[alias])
             return redirect(redirect_url)
 
+        referer_url = request.headers.get('Origin')
+        if referer_url:
+            data = {
+                'referer_url': referer_url,
+                'link_pair': link_pair.id
+            }
+            serializer = RefererSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
         link_pair.request_count += 1
         link_pair.save()
         target_url = link_pair.url
+
         return redirect(target_url)
 
     except ObjectDoesNotExist:
         return Response({'error': 'Alias not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['GET'])
-def get_request_count(request, alias):
-    """
-        The function retrieves the request count for a given link alias.
-
-        :param request: The HTTP request object
-        :param alias: The "alias" parameter is a unique identifier for a link. It is used to retrieve a
-        specific LinkPair object from the database
-        :return: a Response object with the request count of a link pair, along with an HTTP status code.
-    """
-    try:
-        link_pair = LinkPair.objects.get(alias=alias)
-    except ObjectDoesNotExist:
-        return Response({'message': 'This link does not exist.'}, status.HTTP_204_NO_CONTENT)
-
-    request_count = link_pair.request_count
-    return Response({'request_count': request_count}, status.HTTP_200_OK)
 
 
 @api_view(['POST', 'GET'])
@@ -132,3 +125,50 @@ def enter_password(request, alias):
             return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
     except ObjectDoesNotExist:
         return Response({'error': 'Alias not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def get_request_count(request, alias):
+    """
+        The function retrieves the request count for a given link alias.
+
+        :param request: The HTTP request object
+        :param alias: The "alias" parameter is a unique identifier for a link. It is used to retrieve a
+        specific LinkPair object from the database
+        :return: a Response object with the request count of a link pair, along with an HTTP status code.
+    """
+    try:
+        link_pair = LinkPair.objects.get(alias=alias)
+    except ObjectDoesNotExist:
+        return Response({'message': 'This link does not exist.'}, status.HTTP_204_NO_CONTENT)
+
+    request_count = link_pair.request_count
+    return Response({'request_count': request_count}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_referers_count(request, alias):
+    """
+        The function retrieves the top 5 referers for a given link alias and returns
+        them in descending order of referer count and trigger date.
+
+        :param request: The HTTP request object
+        :param alias: The `alias` parameter is a string that represents the alias of a link
+        :return: a Response object with the top 5 referers for a given alias. The referers are sorted by the
+        number of times they have been recorded and the date they were triggered. The referers are returned
+        in the 'referer_top' field of the response.
+    """
+    try:
+        link_pair_id = LinkPair.objects.get(alias=alias).id
+    except ObjectDoesNotExist:
+        return Response({'message': 'This link does not exist.'}, status.HTTP_204_NO_CONTENT)
+
+    sorted_referers = \
+        Referer.objects.filter(link_pair_id=link_pair_id) \
+            .values('referer_url') \
+            .annotate(referer_count=Count('referer_url')) \
+            .order_by('-referer_count', '-trigger_dt')
+
+    referers_top = sorted_referers[:5]
+
+    return Response({'referer_top': referers_top}, status=status.HTTP_200_OK)
