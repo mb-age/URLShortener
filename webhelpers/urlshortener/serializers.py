@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 
-from urlshortener.models import LinkPair
+from urlshortener.models import LinkPair, Referer
 
 
 class LinkPairSerializer(serializers.ModelSerializer):
@@ -36,3 +36,9 @@ class LinkPairSerializer(serializers.ModelSerializer):
         if attrs.get('is_secured') and not attrs.get('password'):
             raise exceptions.ValidationError({'password': 'Protected alias requires a password.'})
         return super().validate(attrs)
+
+
+class RefererSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Referer
+        fields = ['referer_url', 'link_pair', 'trigger_dt']
