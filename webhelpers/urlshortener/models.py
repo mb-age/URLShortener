@@ -2,6 +2,9 @@ from django.db import models
 
 
 class LinkPair(models.Model):
+    """
+    Model representing a pair of links, consisting of a long URL and a potentially customized short alias.
+    """
     url = models.URLField()
     alias = models.CharField(max_length=50, null=True, unique=True, db_index=True)
     created_dt = models.DateTimeField(auto_now_add=True)

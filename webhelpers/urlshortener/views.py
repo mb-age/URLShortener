@@ -18,9 +18,23 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.List
     serializer_class = LinkPairSerializer
 
     def get(self, request, *args, **kwargs):
+        """
+            The function returns the result of calling the "list" method with the given request, arguments,
+            and keyword arguments.
+        """
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+            This function handles the POST request for creating a new LinkPair object, setting the
+            'is_custom' field based on the presence of an 'alias' field in the request data, generating an
+            alias if necessary, and returning the serialized data or any errors.
+
+            :param request: The HTTP request object
+            :return: The code is returning a response object. If the serializer is valid, it returns the
+            serialized data with a status code of 201 (HTTP_CREATED). If the serializer is not valid, it
+            returns the serializer errors with a status code of 400 (HTTP_BAD_REQUEST).
+        """
         _mutable: bool = request.data._mutable
         setattr(request.data, '_mutable', True)
 
@@ -41,6 +55,18 @@ class LinkPairView(generics.GenericAPIView, mixins.CreateModelMixin, mixins.List
 
 @api_view(['GET'])
 def link_redirect(request, alias):
+    """
+        The function redirects the user to a target URL based on an alias,
+        while also checking if the link is active and secured.
+
+        :param request: The HTTP request object
+        :param alias: The `alias` parameter is a unique identifier for a specific link. It is used to
+        retrieve the corresponding `LinkPair` object from the database
+        :return: a redirect response to the target URL if the alias is found and active. If the alias is not
+        found, it returns a response with an error message and a status code of 404. If the alias is found
+        but not active, it returns a response with a message indicating that the link is expired and a
+        status code of 204.
+    """
     try:
         link_pair = LinkPair.objects.get(alias=alias)
 
@@ -62,6 +88,14 @@ def link_redirect(request, alias):
 
 @api_view(['GET'])
 def get_request_count(request, alias):
+    """
+        The function retrieves the request count for a given link alias.
+
+        :param request: The HTTP request object
+        :param alias: The "alias" parameter is a unique identifier for a link. It is used to retrieve a
+        specific LinkPair object from the database
+        :return: a Response object with the request count of a link pair, along with an HTTP status code.
+    """
     try:
         link_pair = LinkPair.objects.get(alias=alias)
     except ObjectDoesNotExist:
@@ -73,6 +107,15 @@ def get_request_count(request, alias):
 
 @api_view(['POST', 'GET'])
 def enter_password(request, alias):
+    """
+        The function checks if a given password matches the password associated with a specific alias,
+        and redirects to a URL if the password is correct.
+
+        :param request: The HTTP request object
+        :param alias: The "alias" parameter is a unique identifier for a LinkPair object. It is used to
+        retrieve the corresponding LinkPair from the database
+        :return: a Response object with a message or error, along with an appropriate HTTP status code.
+    """
     try:
         link_pair = LinkPair.objects.get(alias=alias)
         if request.method == 'GET':
