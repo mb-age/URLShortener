@@ -16,3 +16,9 @@ class LinkPair(models.Model):
 
     class Meta:
         ordering = ['-pk']
+
+
+class Referer(models.Model):
+    referer_url = models.URLField(null=True)
+    link_pair = models.ForeignKey(LinkPair, on_delete=models.CASCADE, related_name='referers')
+    trigger_dt = models.DateTimeField(auto_now_add=True)
